@@ -1,0 +1,12 @@
+--- src/vulkan/wsi/wsi_common.h	2022-07-16 01:42:47.000000000 +0800
++++ src/vulkan/wsi/wsi_common.h	2023-09-01 10:16:24.196205634 +0800
+@@ -114,7 +128,9 @@
+    VkPhysicalDeviceMemoryProperties memory_props;
+    uint32_t queue_family_count;
+ 
++#if defined(VULKAN_WSI_USE_PCI_BUS_INFO)
+    VkPhysicalDevicePCIBusInfoPropertiesEXT pci_bus_info;
++#endif
+ 
+    bool supports_modifiers;
+    uint32_t maxImageDimension2D;

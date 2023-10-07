@@ -1,0 +1,10 @@
+--- src/glx/dri3_priv.h	2022-07-16 01:42:47.000000000 +0800
++++ src/glx/dri3_priv.h	2023-09-01 10:16:24.129204384 +0800
+@@ -107,6 +107,7 @@
+ 
+    void *driver;
+    int fd;
++   int fd_dpy;
+    bool is_different_gpu;
+    bool prefer_back_buffer_reuse;
+ 

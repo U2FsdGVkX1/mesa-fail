@@ -1,0 +1,37 @@
+--- src/gallium/frontends/dri/dri2.c	2022-07-16 01:42:47.000000000 +0800
++++ src/gallium/frontends/dri/dri2.c	2023-09-01 10:16:24.113204086 +0800
+@@ -2538,7 +2538,7 @@
+    if (!configs)
+       goto destroy_screen;
+ 
+-   screen->can_share_buffer = false;
++   screen->can_share_buffer = true;
+    screen->auto_fake_front = dri_with_format(sPriv);
+    screen->broken_invalidate = !sPriv->dri2.useInvalidate;
+    screen->lookup_egl_image = dri2_lookup_egl_image;
+@@ -2594,8 +2594,12 @@
+ const struct __DriverAPIRec galliumdrm_driver_api = {
+    .InitScreen = dri2_init_screen,
+    .DestroyScreen = dri_destroy_screen,
++   .CreateContext = dri_create_context,
++   .DestroyContext = dri_destroy_context,
+    .CreateBuffer = dri2_create_buffer,
+    .DestroyBuffer = dri_destroy_buffer,
++   .MakeCurrent = dri_make_current,
++   .UnbindContext = dri_unbind_context,
+ 
+    .AllocateBuffer = dri2_allocate_buffer,
+    .ReleaseBuffer  = dri2_release_buffer,
+@@ -2616,8 +2620,12 @@
+ const struct __DriverAPIRec dri_kms_driver_api = {
+    .InitScreen = dri_kms_init_screen,
+    .DestroyScreen = dri_destroy_screen,
++   .CreateContext = dri_create_context,
++   .DestroyContext = dri_destroy_context,
+    .CreateBuffer = dri2_create_buffer,
+    .DestroyBuffer = dri_destroy_buffer,
++   .MakeCurrent = dri_make_current,
++   .UnbindContext = dri_unbind_context,
+ 
+    .AllocateBuffer = dri2_allocate_buffer,
+    .ReleaseBuffer  = dri2_release_buffer,

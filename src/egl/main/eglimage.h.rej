@@ -1,0 +1,12 @@
+--- src/egl/main/eglimage.h	2022-07-16 01:42:47.000000000 +0800
++++ src/egl/main/eglimage.h	2023-09-01 10:16:24.108203992 +0800
+@@ -80,6 +80,9 @@
+    struct _egl_image_attrib_int DMABufChromaHorizontalSiting;
+    struct _egl_image_attrib_int DMABufChromaVerticalSiting;
+ 
++   /* EGL_EXT_image_gl_colorspace */
++   EGLint GLColorspace;
++
+    /* EGL_EXT_protected_surface */
+    EGLBoolean ProtectedContent;
+ };

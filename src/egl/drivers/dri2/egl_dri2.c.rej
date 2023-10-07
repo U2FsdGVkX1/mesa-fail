@@ -1,0 +1,152 @@
+--- src/egl/drivers/dri2/egl_dri2.c	2022-07-16 01:42:47.000000000 +0800
++++ src/egl/drivers/dri2/egl_dri2.c	2023-09-01 10:16:24.065203190 +0800
+@@ -1126,6 +1234,8 @@
+    disp->Extensions.EXT_protected_surface =
+       dri2_renderer_query_integer(dri2_dpy,
+                                   __DRI2_RENDERER_HAS_PROTECTED_CONTENT);
++
++   disp->Extensions.EXT_yuv_surface = EGL_TRUE;
+ }
+ 
+ void
+@@ -1350,8 +1468,6 @@
+          dri2_dpy->vtbl->close_screen_notify(disp);
+       dri2_dpy->core->destroyScreen(dri2_dpy->dri_screen);
+    }
+-   if (dri2_dpy->fd >= 0)
+-      close(dri2_dpy->fd);
+ 
+    /* Don't dlclose the driver when building with the address sanitizer, so you
+     * get good symbols from the leak reports.
+@@ -3530,7 +4140,7 @@
+       }
+       dri_image =
+          dri2_dpy->image->createImageFromDmaBufs2(dri2_dpy->dri_screen,
+-            attrs.Width, attrs.Height, attrs.DMABufFourCC.Value,
++            attrs.Width, attrs.Height, fourcc,
+             modifier, fds, num_fds, pitches, offsets,
+             attrs.DMABufYuvColorSpaceHint.Value,
+             attrs.DMABufSampleRangeHint.Value,
+@@ -3542,7 +4152,7 @@
+    else {
+       dri_image =
+          dri2_dpy->image->createImageFromDmaBufs(dri2_dpy->dri_screen,
+-            attrs.Width, attrs.Height, attrs.DMABufFourCC.Value,
++            attrs.Width, attrs.Height, fourcc,
+             fds, num_fds, pitches, offsets,
+             attrs.DMABufYuvColorSpaceHint.Value,
+             attrs.DMABufSampleRangeHint.Value,
+@@ -3551,7 +4161,7 @@
+             &error,
+             NULL);
+    }
+-   dri2_create_image_khr_texture_error(error);
++   dri2_create_image_khr_error(error);
+ 
+    if (!dri_image)
+       return EGL_NO_IMAGE_KHR;
+@@ -3806,13 +4424,104 @@
+ {
+    struct dri2_egl_display *dri2_dpy = dri2_egl_display(disp);
+    struct dri2_egl_image *dri2_img = dri2_egl_image(image);
++#ifdef HAVE_TIZEN_PLATFORM
++   _EGLResource *image_elem;
++#endif
+ 
+    dri2_dpy->image->destroyImage(dri2_img->dri_image);
+    free(dri2_img);
+ 
++#ifdef HAVE_TIZEN_PLATFORM
++   /* Take the opportunity to destroy orphaned tbm surface _EGLImages */
++   pthread_mutex_lock(&dri2_dpy->image_list_mutex);
++   image_elem = dri2_dpy->orphan_image_list;
++   dri2_dpy->orphan_image_list = NULL;
++   pthread_mutex_unlock(&dri2_dpy->image_list_mutex);
++
++   while (image_elem) {
++      dri2_img = dri2_egl_image((_EGLImage *) image_elem);
++      image_elem = image_elem->Next;
++
++      dri2_dpy->image->destroyImage(dri2_img->dri_image);
++      free(dri2_img);
++   }
++#endif
++
++   return EGL_TRUE;
++}
++
++#ifdef HAVE_TIZEN_PLATFORM
++
++static EGLint get_texture_format_from_gbm_format(tbm_format format)
++{
++   switch (format) {
++   case TBM_FORMAT_ARGB8888:
++      return EGL_TEXTURE_RGBA;
++   default:
++      _eglLog(_EGL_DEBUG, "%s: unsupported tbm format %#x", __func__, format);
++      return 0;
++   }
++}
++
++static EGLBoolean
++dri2_bind_wayland_display_wl_tizen(_EGLDisplay *disp, struct wl_display *wl_dpy)
++{
++   (void) disp;
++   (void) wl_dpy;
++
++   return EGL_TRUE;
++}
++
++static EGLBoolean
++dri2_unbind_wayland_display_wl_tizen(_EGLDisplay *disp,
++                                     struct wl_display *wl_dpy)
++{
++   (void) disp;
++   (void) wl_dpy;
++
++   return EGL_TRUE;
++}
++
++static EGLBoolean
++dri2_query_wayland_buffer_wl_tizen(_EGLDisplay *disp,
++                                   struct wl_resource *buffer_resource,
++                                   EGLint attribute, EGLint *value)
++{
++   struct dri2_egl_display *dri2_dpy = dri2_egl_display(disp);
++   tpl_handle_t pixmap = (tpl_handle_t) buffer_resource;
++   tbm_surface_h tbm_surf;
++   tbm_format format;
++   EGLint tex_format;
++
++   tbm_surf = tpl_display_get_buffer_from_native_pixmap(dri2_dpy->tpl_dpy,
++                                                        pixmap);
++   if (!tbm_surf)
++      return EGL_FALSE;
++
++   switch (attribute) {
++   case EGL_TEXTURE_FORMAT:
++      format = tbm_surface_get_format(tbm_surf);
++      tex_format = get_texture_format_from_gbm_format(format);
++      if (!tex_format)
++         return EGL_FALSE;
++
++      *value = tex_format;
++      break;
++   case EGL_WIDTH:
++      *value = tbm_surface_get_width(tbm_surf);
++      break;
++   case EGL_HEIGHT:
++      *value = tbm_surface_get_height(tbm_surf);
++      break;
++   default:
++      return EGL_FALSE;
++   }
++
+    return EGL_TRUE;
+ }
+ 
++#endif
++
+ #ifdef HAVE_WAYLAND_PLATFORM
+ 
+ static void

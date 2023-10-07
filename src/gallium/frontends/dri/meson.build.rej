@@ -1,0 +1,13 @@
+--- src/gallium/frontends/dri/meson.build	2022-07-16 01:42:47.000000000 +0800
++++ src/gallium/frontends/dri/meson.build	2023-09-01 10:16:24.116204142 +0800
+@@ -31,10 +31,6 @@
+   'dri_query_renderer.h',
+   'dri_screen.c',
+   'dri_screen.h',
+-  'dri_util.c',
+-  'dri_util.h',
+-  'utils.c',
+-  'utils.h',
+ )
+ 
+ if with_dri

@@ -1,0 +1,19 @@
+--- src/vulkan/wsi/wsi_common_x11.c	2022-07-16 01:42:47.000000000 +0800
++++ src/vulkan/wsi/wsi_common_x11.c	2023-09-01 10:16:24.203205765 +0800
+@@ -2023,6 +2024,16 @@
+                                  modifiers, num_modifiers, &num_tranches,
+                                  pAllocator);
+ 
++   int display_fd = -1;
++
++   if (!wsi_device->sw) {
++      xcb_screen_iterator_t screen_iter =
++         xcb_setup_roots_iterator(xcb_get_setup(conn));
++      xcb_screen_t *screen = screen_iter.data;
++
++      display_fd = wsi_dri3_open(conn, screen->root, None);
++   }
++
+    if (chain->base.use_buffer_blit) {
+       bool use_modifier = num_tranches > 0;
+       result = wsi_configure_prime_image(&chain->base, pCreateInfo,

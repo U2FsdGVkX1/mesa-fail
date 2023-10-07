@@ -1,0 +1,17 @@
+--- src/gbm/backends/dri/gbm_dri.c	2022-07-16 01:42:47.000000000 +0800
++++ src/gbm/backends/dri/gbm_dri.c	2023-09-01 10:16:24.121204235 +0800
+@@ -442,12 +453,12 @@
+       return -1;
+ 
+    if (dri->dri2->base.version >= 4) {
+-      dri->screen = dri->dri2->createNewScreen2(0, dri->base.v0.fd,
++      dri->screen = dri->dri2->createNewScreen2(0, dri->fd,
+                                                 dri->loader_extensions,
+                                                 dri->driver_extensions,
+                                                 &dri->driver_configs, dri);
+    } else {
+-      dri->screen = dri->dri2->createNewScreen(0, dri->base.v0.fd,
++      dri->screen = dri->dri2->createNewScreen(0, dri->fd,
+                                                dri->loader_extensions,
+                                                &dri->driver_configs, dri);
+    }

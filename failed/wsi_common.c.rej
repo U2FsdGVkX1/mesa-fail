@@ -1,0 +1,18 @@
+--- src/vulkan/wsi/wsi_common.c	2022-07-16 01:42:47.000000000 +0800
++++ src/vulkan/wsi/wsi_common.c	2023-09-01 10:16:24.195205616 +0800
+@@ -63,11 +63,15 @@
+    WSI_GET_CB(GetPhysicalDeviceQueueFamilyProperties);
+ #undef WSI_GET_CB
+ 
++#if defined(VULKAN_WSI_USE_PCI_BUS_INFO)
+    wsi->pci_bus_info.sType =
+       VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT;
++#endif
+    VkPhysicalDeviceProperties2 pdp2 = {
+       .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
++#if defined(VULKAN_WSI_USE_PCI_BUS_INFO)
+       .pNext = &wsi->pci_bus_info,
++#endif
+    };
+    GetPhysicalDeviceProperties2(pdevice, &pdp2);
+ 

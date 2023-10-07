@@ -1,0 +1,11 @@
+--- src/loader/loader_dri3_helper.h	2022-07-16 01:42:47.000000000 +0800
++++ src/loader/loader_dri3_helper.h	2023-09-01 10:16:24.134204477 +0800
+@@ -293,4 +293,8 @@
+ 
+ void
+ loader_dri3_close_screen(__DRIscreen *dri_screen);
++
++bool
++loader_dri3_has_modifiers(bool multiplanes_available,
++                          const __DRIimageExtension *image);
+ #endif

@@ -1,0 +1,20 @@
+--- meson_options.txt	2022-07-16 01:42:47.000000000 +0800
++++ meson_options.txt	2023-09-01 10:16:24.057203041 +0800
+@@ -54,6 +54,8 @@
+ option(
+   'dri-drivers',
+   type : 'array',
++  value : ['auto'],
++  choices : ['auto', 'pvr'],
+   description : 'DEPRECATED: List of dri drivers to build. If this is set to auto all drivers applicable to the target OS/architecture will be built'
+ )
+ option(
+@@ -192,7 +194,7 @@
+   'vulkan-drivers',
+   type : 'array',
+   value : ['auto'],
+-  choices : ['auto', 'amd', 'broadcom', 'freedreno', 'imagination-experimental', 'intel', 'microsoft-experimental', 'panfrost', 'swrast', 'virtio-experimental'],
++  choices : ['auto', 'amd', 'broadcom', 'freedreno', 'imagination-experimental', 'intel', 'microsoft-experimental', 'panfrost', 'swrast', 'virtio-experimental', 'pvr'],
+   description : 'List of vulkan drivers to build. If this is set to auto all drivers applicable to the target OS/architecture will be built'
+ )
+ option(

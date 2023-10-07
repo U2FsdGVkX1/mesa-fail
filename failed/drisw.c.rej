@@ -1,0 +1,16 @@
+--- src/gallium/frontends/dri/drisw.c	2022-07-16 01:42:47.000000000 +0800
++++ src/gallium/frontends/dri/drisw.c	2023-09-01 10:16:24.115204123 +0800
+@@ -603,9 +603,13 @@
+ const struct __DriverAPIRec galliumsw_driver_api = {
+    .InitScreen = drisw_init_screen,
+    .DestroyScreen = dri_destroy_screen,
++   .CreateContext = dri_create_context,
++   .DestroyContext = dri_destroy_context,
+    .CreateBuffer = drisw_create_buffer,
+    .DestroyBuffer = dri_destroy_buffer,
+    .SwapBuffers = drisw_swap_buffers,
++   .MakeCurrent = dri_make_current,
++   .UnbindContext = dri_unbind_context,
+    .CopySubBuffer = drisw_copy_sub_buffer,
+ };
+ 

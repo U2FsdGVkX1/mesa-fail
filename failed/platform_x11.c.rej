@@ -1,0 +1,26 @@
+--- src/egl/drivers/dri2/platform_x11.c	2022-07-16 01:42:47.000000000 +0800
++++ src/egl/drivers/dri2/platform_x11.c	2023-09-01 10:16:24.091203675 +0800
+@@ -1413,6 +1413,7 @@
+       return _eglError(EGL_BAD_ALLOC, "eglInitialize");
+ 
+    dri2_dpy->fd = -1;
++   dri2_dpy->fd_dpy = -1;
+    if (!dri2_get_xcb_connection(disp, dri2_dpy))
+       goto cleanup;
+ 
+@@ -1497,6 +1498,7 @@
+       return _eglError(EGL_BAD_ALLOC, "eglInitialize");
+ 
+    dri2_dpy->fd = -1;
++   dri2_dpy->fd_dpy = -1;
+    if (!dri2_get_xcb_connection(disp, dri2_dpy))
+       goto cleanup;
+ 
+@@ -1605,6 +1607,7 @@
+       return _eglError(EGL_BAD_ALLOC, "eglInitialize");
+ 
+    dri2_dpy->fd = -1;
++   dri2_dpy->fd_dpy = -1;
+    if (!dri2_get_xcb_connection(disp, dri2_dpy))
+       goto cleanup;
+ 

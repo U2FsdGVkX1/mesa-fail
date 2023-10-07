@@ -1,0 +1,17 @@
+--- src/egl/main/egldisplay.h	2022-07-16 01:42:47.000000000 +0800
++++ src/egl/main/egldisplay.h	2023-09-01 10:16:24.106203955 +0800
+@@ -109,12 +111,14 @@
+    EGLBoolean EXT_create_context_robustness;
+    EGLBoolean EXT_image_dma_buf_import;
+    EGLBoolean EXT_image_dma_buf_import_modifiers;
++   EGLBoolean EXT_image_gl_colorspace;
+    EGLBoolean EXT_pixel_format_float;
+    EGLBoolean EXT_protected_surface;
+    EGLBoolean EXT_present_opaque;
+    EGLBoolean EXT_surface_CTA861_3_metadata;
+    EGLBoolean EXT_surface_SMPTE2086_metadata;
+    EGLBoolean EXT_swap_buffers_with_damage;
++   EGLBoolean EXT_yuv_surface;
+ 
+    unsigned int IMG_context_priority;
+ #define  __EGL_CONTEXT_PRIORITY_LOW_BIT    0

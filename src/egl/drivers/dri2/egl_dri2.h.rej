@@ -1,0 +1,30 @@
+--- src/egl/drivers/dri2/egl_dri2.h	2022-07-16 01:42:47.000000000 +0800
++++ src/egl/drivers/dri2/egl_dri2.h	2023-09-01 10:16:24.068203246 +0800
+@@ -262,6 +287,7 @@
+    const __DRIconfigOptionsExtension *configOptions;
+    const __DRImutableRenderBufferDriverExtension *mutable_render_buffer;
+    int fd;
++   int                       fd_dpy;
+ 
+    /* dri2_initialize/dri2_terminate increment/decrement this count, so does
+     * dri2_make_current (tracks if there are active contexts/surfaces). */
+@@ -327,6 +360,19 @@
+ 
+    bool is_render_node;
+    bool is_different_gpu;
++
++#ifdef HAVE_TIZEN_PLATFORM
++   tpl_display_t            *tpl_dpy;
++   /*
++    * The image_list_mutex protects the image_list and orphan_image_list. It
++    * should never be held while calling a libtbm function as this may result
++    * in a deadlock.
++    */
++   pthread_mutex_t           image_list_mutex;
++   bool                      image_list_mutex_initialized;
++   _EGLResource             *image_list;
++   _EGLResource             *orphan_image_list;
++#endif
+ };
+ 
+ struct dri2_egl_context

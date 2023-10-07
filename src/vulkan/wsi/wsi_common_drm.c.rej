@@ -1,0 +1,57 @@
+--- src/vulkan/wsi/wsi_common_drm.c	2022-07-16 01:42:47.000000000 +0800
++++ src/vulkan/wsi/wsi_common_drm.c	2023-09-01 10:19:25.558589989 +0800
+@@ -96,6 +100,7 @@
+ static uint32_t
+ select_memory_type(const struct wsi_device *wsi,
+                    bool want_device_local,
++                   bool want_host_visible,
+                    uint32_t type_bits)
+ {
+    assert(type_bits);
+@@ -104,8 +109,10 @@
+    for (uint32_t i = 0; i < wsi->memory_props.memoryTypeCount; i++) {
+        const VkMemoryType type = wsi->memory_props.memoryTypes[i];
+        bool local = type.propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
++       bool host = type.propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+ 
+-       if ((type_bits & (1 << i)) && local == want_device_local)
++       if ((type_bits & (1 << i)) && local == want_device_local &&
++            (!want_host_visible || host))
+          return i;
+        all_local &= local;
+    }
+@@ -113,6 +120,8 @@
+    /* ignore want_device_local when all memory types are device-local */
+    if (all_local) {
+       assert(!want_device_local);
++      /* currently, host visibility is only needed with device local */
++      assert(!want_host_visible);
+       return ffs(type_bits) - 1;
+    }
+ 
+@@ -123,14 +132,14 @@
+ prime_select_buffer_memory_type(const struct wsi_device *wsi,
+                                 uint32_t type_bits)
+ {
+-   return select_memory_type(wsi, false, type_bits);
++   return select_memory_type(wsi, false, true, type_bits);
+ }
+ 
+ static uint32_t
+ prime_select_image_memory_type(const struct wsi_device *wsi,
+                                uint32_t type_bits)
+ {
+-   return select_memory_type(wsi, true, type_bits);
++   return select_memory_type(wsi, true, true, type_bits);
+ }
+ 
+ static const struct VkDrmFormatModifierPropertiesEXT *
+@@ -344,7 +355,7 @@
+       .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+       .pNext = sw_host_ptr ? (void *)&host_ptr_info : (void *)&memory_dedicated_info,
+       .allocationSize = reqs.size,
+-      .memoryTypeIndex = select_memory_type(wsi, true, reqs.memoryTypeBits),
++      .memoryTypeIndex = select_memory_type(wsi, true, true, reqs.memoryTypeBits),
+    };
+    result = wsi->AllocateMemory(chain->device, &memory_info,
+                                 &chain->alloc, &image->memory);

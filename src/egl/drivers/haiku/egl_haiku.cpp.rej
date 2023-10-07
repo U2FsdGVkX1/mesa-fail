@@ -1,0 +1,17 @@
+--- src/egl/drivers/haiku/egl_haiku.cpp	2022-07-16 01:42:47.000000000 +0800
++++ src/egl/drivers/haiku/egl_haiku.cpp	2023-09-01 10:16:24.094203731 +0800
+@@ -298,6 +298,14 @@
+ 
+ 
+ extern "C"
++EGLint
++haiku_dri2_query_context_client_version(_EGLDisplay *disp, _EGLContext *ctx)
++{
++	// Tell caller to use the default value.
++	return 0;
++}
++
++extern "C"
+ EGLBoolean
+ haiku_swap_buffers(_EGLDisplay *disp, _EGLSurface *surf)
+ {

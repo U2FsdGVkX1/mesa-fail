@@ -1,0 +1,42 @@
+--- src/vulkan/wsi/wsi_common_wayland.c	2022-07-16 01:42:47.000000000 +0800
++++ src/vulkan/wsi/wsi_common_wayland.c	2023-09-01 10:16:24.201205728 +0800
+@@ -32,6 +32,8 @@
+ #include <pthread.h>
+ #include <poll.h>
+ #include <sys/mman.h>
++#include <fcntl.h>
++#include <xf86drm.h>
+ 
+ #include "drm-uapi/drm_fourcc.h"
+ 
+@@ -64,10 +66,14 @@
+    struct wl_event_queue *                      queue;
+ 
+    struct wl_shm *                              wl_shm;
++   struct wl_drm *                              wl_drm;
+    struct zwp_linux_dmabuf_v1 *                 wl_dmabuf;
+ 
+    struct wsi_wayland *wsi_wl;
+ 
++   int                                          fd;
++   bool                                         authenticated;
++
+    /* Formats populated by zwp_linux_dmabuf_v1 or wl_shm interfaces */
+    struct u_vector                              formats;
+ 
+@@ -569,7 +648,14 @@
+       return;
+    }
+ 
+-   if (strcmp(interface, "zwp_linux_dmabuf_v1") == 0 && version >= 3) {
++   if (strcmp(interface, "wl_drm") == 0) {
++      assert(display->wl_drm == NULL);
++
++      assert(version >= 2);
++      display->wl_drm =
++         wl_registry_bind(registry, name, &wl_drm_interface, 2);
++      wl_drm_add_listener(display->wl_drm, &drm_listener, display);
++   } else if (strcmp(interface, "zwp_linux_dmabuf_v1") == 0 && version >= 3) {
+       display->wl_dmabuf =
+          wl_registry_bind(registry, name, &zwp_linux_dmabuf_v1_interface, 3);
+       zwp_linux_dmabuf_v1_add_listener(display->wl_dmabuf,
